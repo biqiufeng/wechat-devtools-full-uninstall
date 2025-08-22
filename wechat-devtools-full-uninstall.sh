@@ -113,10 +113,16 @@ paths=(
 )
 
 for p in "${paths[@]}"; do
-  # 展开通配符
-  for path in $p; do
-    [[ -e "$path" || -L "$path" ]] && { log "清理: $path"; act "$path"; }
-  done
+  # 检查路径是否包含通配符
+  if [[ "$p" == *"*"* ]]; then
+    # 包含通配符，需要展开
+    for path in $p; do
+      [[ -e "$path" || -L "$path" ]] && { log "清理: $path"; act "$path"; }
+    done
+  else
+    # 不包含通配符，直接处理（保持引号避免空格问题）
+    [[ -e "$p" || -L "$p" ]] && { log "清理: $p"; act "$p"; }
+  fi
 done
 
 # 6) 如果曾通过 Homebrew 安装（可选清理）
